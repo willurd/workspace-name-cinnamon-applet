@@ -1,6 +1,7 @@
 const Applet = imports.ui.applet;
-const Lang = imports.lang;
 const Main = imports.ui.main;
+const PopupMenu = imports.ui.popupMenu;
+const Lang = imports.lang;
 
 function WorkspaceNameApplet(metadata, orientation, panel_height, instanceId) {
   this._init(metadata, orientation, panel_height, instanceId);
@@ -15,11 +16,23 @@ WorkspaceNameApplet.prototype = {
 
     try {
       this.log(this.metadata.version);
-      global.window_manager.connect('switch-workspace', Lang.bind(this, this.update));
-      this.update();
+
+      // Set up the label.
+      global.window_manager.connect('switch-workspace', Lang.bind(this, this.updateLabel));
+      this.updateLabel();
+
+      // Set up the menu.
+      this.menu = new Applet.AppletPopupMenu(this, orientation);
+      this.menuManager = new PopupMenu.PopupMenuManager(this);
+      this.menuManager.addMenu(this.menu);
     } catch(e) {
       this.logError(this.uuid + " Main Applet Exception: " + e.toString());
     }
+  },
+
+  on_applet_clicked: function(event) {
+    this.updateMenu();
+    this.menu.toggle();
   },
 
   log: function(message) {
@@ -30,10 +43,26 @@ WorkspaceNameApplet.prototype = {
     global.logError('[' + this.metadata.uuid + '] ' + message);
   },
 
-  update: function() {
+  updateLabel: function() {
     let active_workspace = global.screen.get_active_workspace();
     let name = Main.getWorkspaceName(active_workspace.index());
     this.set_applet_label(name);
+  },
+
+  updateMenu: function() {
+    this.menu.removeAll();
+
+    for (let i = 0, workspaceCount = global.screen.n_workspaces; i < workspaceCount; i++) {
+      let workspaceName = Main.getWorkspaceName(i);
+      let workspace = global.screen.get_workspace_by_index(i);
+      let menuItem = new PopupMenu.PopupMenuItem(workspaceName);
+      menuItem.connect('activate', Lang.bind(this, function() { this.activateWorkspace(workspace); }));
+      this.menu.addMenuItem(menuItem);
+    }
+  },
+
+  activateWorkspace: function(workspace) {
+    workspace.activate(global.get_current_time());
   }
 }
 
