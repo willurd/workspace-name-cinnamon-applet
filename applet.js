@@ -1,10 +1,6 @@
 const Applet = imports.ui.applet;
 const Lang = imports.lang;
-const St = imports.gi.St;
 const Main = imports.ui.main;
-
-let uuid = "workspace-name@willurd";
-let spacing = '    ';
 
 function WorkspaceNameApplet(metadata, orientation, panel_height, instanceId) {
   this._init(metadata, orientation, panel_height, instanceId);
@@ -18,19 +14,26 @@ WorkspaceNameApplet.prototype = {
     this.metadata = metadata;
 
     try {
-      global.log(uuid + ": v0.0.1");
+      this.log(this.metadata.version);
       global.window_manager.connect('switch-workspace', Lang.bind(this, this.update));
       this.update();
     } catch(e) {
-      global.logError(uuid + " Main Applet Exception: " + e.toString());
+      this.logError(this.uuid + " Main Applet Exception: " + e.toString());
     }
+  },
+
+  log: function(message) {
+    global.log('[' + this.metadata.uuid + '] ' + message);
+  },
+
+  logError: function(message) {
+    global.logError('[' + this.metadata.uuid + '] ' + message);
   },
 
   update: function() {
     let active_workspace = global.screen.get_active_workspace();
     let name = Main.getWorkspaceName(active_workspace.index());
-
-    this.set_applet_label(spacing + name + spacing);
+    this.set_applet_label(name);
   }
 }
 
