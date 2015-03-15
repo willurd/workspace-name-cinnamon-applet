@@ -58,6 +58,13 @@ WorkspaceNameApplet.prototype = {
       let workspaceName = Main.getWorkspaceName(i);
       let workspace = global.screen.get_workspace_by_index(i);
       let menuItem = new PopupMenu.PopupMenuItem(workspaceName);
+
+      if (i === global.screen.get_active_workspace_index()) {
+        menuItem.actor.reactive = false;
+        menuItem.actor.can_focus = false;
+        menuItem.label.add_style_class_name('popup-subtitle-menu-item');
+      }
+
       menuItem.connect('activate', Lang.bind(this, function() { this.activateWorkspace(workspace); }));
       this.menu.addMenuItem(menuItem);
     }
