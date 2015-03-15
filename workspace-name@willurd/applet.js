@@ -19,6 +19,7 @@ WorkspaceNameApplet.prototype = {
 
       // Set up the label.
       global.window_manager.connect('switch-workspace', Lang.bind(this, this.updateLabel));
+      global.settings.connect('changed::workspace-name-overrides', Lang.bind(this, this.updateLabel));
       this.updateLabel();
 
       // Set up the menu.
@@ -44,8 +45,9 @@ WorkspaceNameApplet.prototype = {
   },
 
   updateLabel: function() {
-    let active_workspace = global.screen.get_active_workspace();
-    let name = Main.getWorkspaceName(active_workspace.index());
+    this.log('Updating label');
+    let activeWorkspace = global.screen.get_active_workspace();
+    let name = Main.getWorkspaceName(activeWorkspace.index());
     this.set_applet_label(name);
   },
 
