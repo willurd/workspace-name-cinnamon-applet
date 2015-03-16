@@ -45,7 +45,6 @@ WorkspaceNameApplet.prototype = {
   },
 
   updateLabel: function() {
-    this.log('Updating label');
     let activeWorkspace = global.screen.get_active_workspace();
     let name = Main.getWorkspaceName(activeWorkspace.index());
     this.set_applet_label(name);
